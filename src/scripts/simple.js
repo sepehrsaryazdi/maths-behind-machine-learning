@@ -16,7 +16,7 @@ loadingTask.promise.then(
 	function (pdf) {
 		// Load information from the first page.
 		pdf.getPage(1).then(function (page) {
-			var scale = 10;
+			var scale = 30;
 			var viewport = page.getViewport({scale: scale});
             console.log(viewport);
 
