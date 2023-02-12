@@ -3,7 +3,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import time
 
 hostName = "localhost"
-serverPort = 8080
+serverPort = 8080 # pdf port
+
 
 class MyServer(BaseHTTPRequestHandler):
     def do_GET(self):
