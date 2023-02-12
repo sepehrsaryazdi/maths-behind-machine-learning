@@ -12,7 +12,7 @@ class MyServer(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header("Content-type", "application/pdf")
         self.end_headers()
-        file = open("./mainPdf.pdf", "rb")
+        file = open("./localServer/mainPdf.pdf", "rb")
         self.wfile.write(file.read())
         # self.wfile.write(bytes("<html><head><title>https://pythonbasics.org</title></head>", "utf-8"))
         # self.wfile.write(bytes("<p>Request: %s</p>" % self.path, "utf-8"))
