@@ -3,8 +3,9 @@
 <head>
 <title>The Deep Mathematics Behind A.I. and Deep Learning</title>
 <link rel="stylesheet" href="src/styles.css">
+<script src="http://vivin.net/pub/pdfjs/textlayerbuilder.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script src="src/scripts/pdfjs-3.3.122-dist/build/pdf.js"></script>
-<script src="src/scripts/simple.js"></script>
 </head>
 
 
@@ -14,15 +15,22 @@
 
     <div>
 
-        <canvas id="pdf" style="width: 100%; height: 60%;"></canvas>
-       
+        <!-- <canvas id="pdf" style="width: 100%; height: 60%;">
+        <div> -->
+          
+          <canvas id="pdf" style="height: 100vh; padding: 10%;">
+          </canvas>
 
+        </div>
+      
+        
     </div>
 
 </div>
 
     
 
+<script src="src/scripts/simple.js"></script>
 
 
 </body>
