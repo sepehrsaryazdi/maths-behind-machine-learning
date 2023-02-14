@@ -17,9 +17,43 @@ filterElement.forEach((f) => {
 filterElement.forEach((f) => {
   f.onclick = () => {
     filter = f.value;
-    filteredImage.src = filterImage(imageToFilter, filter);
+    filteredImage.src = filterImage(imageToFilter, filter,10,10,10,10);
   };
 });
+
+filteredImage.setAttribute('draggable', false);
+
+
+var x0 = null;
+var y0 = null;
+var x1 = null;
+var y1 = null;
+var active = false;
+
+
+filteredImage.addEventListener("mousedown", (e) => {
+  filter = "blur";
+  active = true;
+  x0 = e.pageX - filteredImage.offsetLeft;
+  y0 = e.pageY - filteredImage.offsetTop;
+  // filteredImage.src = filterImage(filteredImage, filter);
+})
+
+
+filteredImage.addEventListener("mousemove", (e)=>{
+  filter = "blur";
+
+  if(active) {
+    x1 = e.pageX - filteredImage.offsetLeft;
+    y1 = e.pageY - filteredImage.offsetTop;
+    filteredImage.src = filterImage(filteredImage, filter, x0, y0, x1,y1);
+  }
+})
+
+filteredImage.addEventListener("mouseup", (e)=>{
+  active = false;
+})
+
 
 fileInput.addEventListener("change", async (e) => {
   const [file] = fileInput.files;
@@ -35,7 +69,7 @@ fileInput.addEventListener("change", async (e) => {
 
   // applying the defaul filter
   imageToFilter.addEventListener("load", () => {
-    filteredImage.src = filterImage(imageToFilter, filter);
+    filteredImage.src = filterImage(imageToFilter, filter, 10, 10, 10, 10);
   });
 
   return false;
@@ -53,7 +87,7 @@ function fileToDataUri(field) {
   });
 }
 
-function filterImage(imageToFilter, filter) {
+function filterImage(imageToFilter, filter, x0, y0, x1,y1) {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
 
@@ -71,16 +105,37 @@ function filterImage(imageToFilter, filter) {
     canvasHeight
   );
 
-  const outputImageData = applyFilter(
-    sourceImageData,
-    blankOutputImageData,
-    filter
-  );
+  // const outputImageData = applyWarp(
+  //   sourceImageData,
+  //   blankOutputImageData,
+  //   1,1,1,1
+  // );
 
+  const outputImageData = applyStretch(sourceImageData, blankOutputImageData, x0, y0, x1,y1);
+  // const outputImageData = sourceImageData;
+    
   context.putImageData(outputImageData, 0, 0);
 
   return canvas.toDataURL();
 }
+
+
+function applyWarp(sourceImageData, outputImageData, x0,y0, x1,y1){
+
+  return applyConvolution(sourceImageData, outputImageData, [
+    0,
+    -1,
+    0,
+    -1,
+    5,
+    -1,
+    0,
+    -1,
+    0
+  ]);
+
+}
+
 
 function applyFilter(sourceImageData, outputImageData, filter) {
   if (filter === "noFilter") {
@@ -130,6 +185,131 @@ function applyThreshold(sourceImageData, threshold = 127) {
 
   return sourceImageData;
 }
+
+function applyStretch(sourceImageData, outputImageData, x0, y0, x1,y1) {
+  const epsilon = 5;
+  const src = sourceImageData.data;
+  const dst = outputImageData.data;
+
+  const srcWidth = sourceImageData.width;
+  const srcHeight = sourceImageData.height;
+
+  const w = srcWidth;
+  const h = srcHeight;
+
+
+  // console.log(src.length, w*h*4);
+
+
+
+
+  // console.log(w,h);
+
+
+  for(x=0 ; x<w; x++){
+    for(y=0 ; y<h; y++){
+      // console.log(y*w+x);
+      const offSet = (y*w + x)*4;
+      dst[offSet] = src[offSet];
+      dst[offSet+1] = src[offSet+1];
+      dst[offSet+2] = src[offSet+2];
+      dst[offSet+3] = src[offSet+3];
+    }
+  }
+
+  const numCentres = Math.abs(x1-x0) + Math.abs(y1-y0);
+  
+  var centres = []
+  for(t = 0 ; t <= 1 ; t+=1/numCentres) {
+    x_t = Math.round((1-t)*x0 + t*x1);
+    y_t = Math.round((1-t)*y0 + t*y1);
+    if(centres.length == 0){
+      centres.push([x_t,y_t]);
+    }
+
+    var exists = false;
+    for(i = 0 ; i < centres.length ; i++){
+        var centre = centres[i];
+        if (centre[0] == x_t & centre[1] == y_t) {
+          exists = true;
+        }
+    }
+
+    if(!exists){
+      centres.push([x_t,y_t]);
+    }
+
+  }
+
+  // var originalPixels = []
+  // for(x=0;x<w; x++){
+  //   for(y=0;y<h;y++){
+  //     if((x-x0)**2 + (y-y0)**2 <= epsilon**2){
+  //       originalPixels.push([x,y])
+  //     }
+  //   }
+  // }
+
+  // console.log(originalPixels);
+
+  var uniqueDifferentials = [];
+
+  for(r = 0 ; r<= epsilon; r++){
+    for(theta = 0 ; theta< 2*Math.PI; theta+= 1/10){
+      x = Math.round(r*Math.cos(theta));
+      y = Math.round(r*Math.sin(theta));
+      if(uniqueDifferentials.length == 0){
+        uniqueDifferentials.push([x,y]);
+      }
+  
+      var exists = false;
+      for(i = 0 ; i < uniqueDifferentials.length ; i++){
+          var uniqueDifferential = uniqueDifferentials[i];
+          if (uniqueDifferential[0] == x & uniqueDifferential[1] == y) {
+            exists = true;
+          }
+      }
+  
+      if(!exists){
+        uniqueDifferentials.push([x,y]);
+      }
+
+    }
+  }
+
+
+
+  for(i=0 ; i<centres.length ; i++){
+    var centre = centres[i];
+    x_t = centre[0];
+    y_t = centre[1];
+    for(j = 0 ; j < uniqueDifferentials.length ; j ++ ){
+      var uniqueDifferential = uniqueDifferentials[j];
+      var dx = uniqueDifferential[0];
+      var dy = uniqueDifferential[1];
+      x_old = Math.max(Math.min(x0 + dx, w-1),0);
+      x_new = Math.max(Math.min(x_t + dx, w-1),0);
+      y_old = Math.max(Math.min(y0 + dy,h-1),0);
+      y_new = Math.max(Math.min(y_t + dy,h-1),0);
+
+      const offSetOld = (y_old*w + x_old)*4;
+      const offSetNew = (y_new*w + x_new)*4;
+
+      dst[offSetNew] = src[offSetOld];
+      dst[offSetNew+1] = src[offSetOld+1];
+      dst[offSetNew+2] = src[offSetOld+2];
+      dst[offSetNew+3] = src[offSetOld+3];
+
+    }
+  
+  
+  }
+
+  return outputImageData;
+
+
+}
+
 
 function applyConvolution(sourceImageData, outputImageData, kernel) {
   const src = sourceImageData.data;
