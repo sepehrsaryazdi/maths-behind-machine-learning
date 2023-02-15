@@ -6,12 +6,50 @@ const fileInput = document.querySelector("#upload");
 let imageToFilter = null;
 const filteredImage = document.querySelector("#filteredImage");
 
+
+var dummyPdf = "http://localhost:8090"
+
+const url = dummyPdf    
+const options = {
+    method: "GET"
+}
+
+
+async function load_pic() {
+    
+  const url = dummyPdf;
+
+  const options = {
+      method: "GET"
+  }
+
+  let response = await fetch(url, options)
+
+  if (response.status === 200) {
+      const imageBlob = await response.blob()
+      const imageObjectURL = URL.createObjectURL(imageBlob);
+      filteredImage.src = imageObjectURL
+      imageToFilter.addEventListener("load", () => {
+        filteredImage.src = filterImage(imageToFilter, filter, 10, 10, 10, 10);
+      });
+  }
+  else {
+      console.log("HTTP-Error: " + response.status)
+  }
+}
+
+
+load_pic();
+
 // initializing the filter value
 const filterElement = document.getElementsByName("filterRadio");
 let filter;
 filterElement.forEach((f) => {
   if (f.checked) filter = f.value;
 });
+
+
+
 
 // applying the selected filter
 filterElement.forEach((f) => {
@@ -187,7 +225,7 @@ function applyThreshold(sourceImageData, threshold = 127) {
 }
 
 function applyStretch(sourceImageData, outputImageData, x0, y0, x1,y1) {
-  const epsilon = 5;
+  const epsilon = 10;
   const src = sourceImageData.data;
   const dst = outputImageData.data;
 
