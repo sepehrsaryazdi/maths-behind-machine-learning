@@ -3,9 +3,8 @@ const imagesDiv = document.querySelector("#images");
 
 const fileInput = document.querySelector("#upload");
 
-let imageToFilter = null;
 const filteredImage = document.querySelector("#filteredImage");
-
+let imageToFilter = filteredImage;
 
 var dummyPdf = "http://localhost:8090"
 
@@ -72,8 +71,12 @@ var active = false;
 filteredImage.addEventListener("mousedown", (e) => {
   filter = "blur";
   active = true;
-  x0 = e.pageX - filteredImage.offsetLeft;
-  y0 = e.pageY - filteredImage.offsetTop;
+  var top = Math.round(filteredImage.getBoundingClientRect().top);
+  var left = Math.round(filteredImage.getBoundingClientRect().left);
+  x0 = e.pageX - left - window.pageXOffset;
+  y0 = e.pageY - top - window.pageYOffset;
+  // console.log(left, top);
+  // console.log(y0)
   // filteredImage.src = filterImage(filteredImage, filter);
 })
 
@@ -82,8 +85,10 @@ filteredImage.addEventListener("mousemove", (e)=>{
   filter = "blur";
 
   if(active) {
-    x1 = e.pageX - filteredImage.offsetLeft;
-    y1 = e.pageY - filteredImage.offsetTop;
+    var top = Math.round(filteredImage.getBoundingClientRect().top);
+    var left = Math.round(filteredImage.getBoundingClientRect().left);
+    x1 = e.pageX - left - window.pageXOffset;
+    y1 =  e.pageY - top - window.pageYOffset;
     filteredImage.src = filterImage(filteredImage, filter, x0, y0, x1,y1);
   }
 })
@@ -93,25 +98,25 @@ filteredImage.addEventListener("mouseup", (e)=>{
 })
 
 
-fileInput.addEventListener("change", async (e) => {
-  const [file] = fileInput.files;
+// fileInput.addEventListener("change", async (e) => {
+//   const [file] = fileInput.files;
   
-  // displaying the uploaded image
-  imageToFilter = document.querySelector("#imageToFilter");
-  imageToFilter.src = await fileToDataUri(file);
-  // imageToFilter.src = 'src/images/smile.jpeg'; 
-  // console.log(imageToFilter.src)
+//   // displaying the uploaded image
+//   imageToFilter = document.querySelector("#imageToFilter");
+//   imageToFilter.src = await fileToDataUri(file);
+//   // imageToFilter.src = 'src/images/smile.jpeg'; 
+//   // console.log(imageToFilter.src)
 
-  // making the div containing the image visible
-  imagesDiv.style.visibility = "visible";
+//   // making the div containing the image visible
+//   imagesDiv.style.visibility = "visible";
 
-  // applying the defaul filter
-  imageToFilter.addEventListener("load", () => {
-    filteredImage.src = filterImage(imageToFilter, filter, 10, 10, 10, 10);
-  });
+//   // applying the defaul filter
+//   imageToFilter.addEventListener("load", () => {
+//     filteredImage.src = filterImage(imageToFilter, filter, 10, 10, 10, 10);
+//   });
 
-  return false;
-});
+//   return false;
+// });
 
 function fileToDataUri(field) {
   return new Promise((resolve) => {

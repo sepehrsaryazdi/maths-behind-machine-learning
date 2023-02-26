@@ -18,9 +18,9 @@ var pdfSections = document.getElementsByClassName("pdfSection");
 loadingTask.promise.then(
 	function (pdf) {
 		// Load information from the first page.
-		for(i = 0 ; i < pdfSections.length ; i++){
+		for(i = 0 ; i < pdfSections.length; i++){
 			// console.log(pdf.getPage(2))
-			pdf.getPage(i).then(function (page) {
+			pdf.getPage(i+1).then(function (page) {
 				var scale = 10;
 				var viewport = page.getViewport({scale: scale});
 				var canvas = pdfSections[page._pageIndex];
