@@ -5,6 +5,8 @@
 pdfjsLib.GlobalWorkerOptions.workerSrc =
     'src/scripts/pdfjs-3.3.122-dist/build/pdf.worker.js';
 
+var vid = document.getElementById("droneVideo");
+vid.playbackRate = 10;
 
 
 var dummyPdf = "http://localhost:8080"
@@ -19,7 +21,7 @@ loadingTask.promise.then(
 		for(i = 0 ; i < pdfSections.length ; i++){
 			// console.log(pdf.getPage(2))
 			pdf.getPage(i).then(function (page) {
-				var scale = 20;
+				var scale = 10;
 				var viewport = page.getViewport({scale: scale});
 				var canvas = pdfSections[page._pageIndex];
 				// console.log(canvas)
@@ -112,14 +114,14 @@ for(i = 0 ; i < pdfSections.length-1 ; i++){
 
 document.addEventListener('keydown', event => {
 	event.preventDefault();
-	if (event.code === 'Space' || event.code == "ArrowDown") {
+	if (event.code === 'Space' || event.code === "Enter" || event.code == "ArrowDown" || event.code == "ArrowRight") {
 	  console.log('Space pressed')
 	  currentSection += 1
 	  if(currentSection >= pdfSections.length){
 		currentSection = pdfSections.length - 1;
 	  }
 	  
-	} else if (event.code == "ArrowUp") {
+	} else if (event.code == "ArrowUp" || event.code == "ArrowLeft") {
 		currentSection -= 1
 		if(currentSection < 0){
 			currentSection = 0;
