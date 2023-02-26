@@ -11,11 +11,11 @@ var dummyPdf = "http://localhost:8080"
 
 var loadingTask = pdfjsLib.getDocument(dummyPdf);
 
+var pdfSections = document.getElementsByClassName("pdfSection");
 
 loadingTask.promise.then(
 	function (pdf) {
 		// Load information from the first page.
-		var pdfSections = document.getElementsByClassName("pdfSection");
 		for(i = 0 ; i < pdfSections.length ; i++){
 			// console.log(pdf.getPage(2))
 			pdf.getPage(i).then(function (page) {
@@ -58,3 +58,76 @@ loadingTask.promise.then(
 		console.error(reason);
 	},
 );
+
+
+// class ScrollController() {
+// 	computeDivTopAbsolutePosition(div) {
+//         return div.getBoundingClientRect().top + window.pageYOffset
+//     }
+
+//     computeDivBottomAbsolutePosition(div) {
+//         return div.getBoundingClientRect().bottom + window.pageYOffset
+//     }
+
+//     computeDivAbsoluteDifference(div1,div2) {
+//         return this.computeDivTopAbsolutePosition(div2) - this.computeDivBottomAbsolutePosition(div1)
+//     }
+// }
+
+
+function computeDivTopAbsolutePosition(div) {
+	return div.getBoundingClientRect().top + window.pageYOffset
+}
+
+pdfTopPositions = []
+for(i=0 ; i < pdfSections.length ; i++){
+	pdfTopPositions.push(computeDivTopAbsolutePosition(pdfSections[i]));
+}
+
+console.log(pdfTopPositions);
+
+// window.addEventListener('scroll', function(event) {
+// 	let scroll = this.scrollY;
+// 	// console.log(computeDivTopAbsolutePosition(pdfSections[0]));
+// 	console.log(scroll);
+// 	for(i = 0 ; i < pdfSections.length-1 ; i++){
+// 		if(scroll > pdfTopPositions[i]) {
+// 			pdfSections[i+1].scrollIntoView();
+// 		}
+// 	}
+// })
+
+var currentScroll = document.documentElement.scrollTop || document.body.scrollTop;
+var currentSection = 0;
+
+console.log(currentScroll);
+
+for(i = 0 ; i < pdfSections.length-1 ; i++){
+	if(currentScroll >= pdfTopPositions[i] & currentScroll < pdfTopPositions[i+1]){
+		currentSection = i;
+	}
+}
+
+
+
+document.addEventListener('keydown', event => {
+	event.preventDefault();
+	if (event.code === 'Space' || event.code == "ArrowDown") {
+	  console.log('Space pressed')
+	  currentSection += 1
+	  if(currentSection >= pdfSections.length){
+		currentSection = pdfSections.length - 1;
+	  }
+	  
+	} else if (event.code == "ArrowUp") {
+		currentSection -= 1
+		if(currentSection < 0){
+			currentSection = 0;
+		}
+	}
+
+	console.log(currentSection)
+
+
+	pdfSections[currentSection].scrollIntoView();
+  })
