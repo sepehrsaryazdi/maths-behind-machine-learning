@@ -8,6 +8,9 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 var vid = document.getElementById("droneVideo");
 vid.playbackRate = 10;
 
+var vid = document.getElementById("droneVideo2");
+vid.playbackRate = 10;
+
 
 var dummyPdf = "http://localhost:8080"
 
