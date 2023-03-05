@@ -39,7 +39,7 @@ class MyServerBlank(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header("Content-type", "image/png")
         self.end_headers()
-        file = open("./localServer/smile.png", "rb")
+        file = open("./localServer/blank.png", "rb")
         self.wfile.write(file.read())
 
 def startServer(webServer):

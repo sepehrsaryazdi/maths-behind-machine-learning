@@ -4,19 +4,25 @@ const imagesDiv = document.querySelector("#images");
 const fileInput = document.querySelector("#upload");
 
 const filteredImage = document.querySelector("#filteredImage");
+const faceSpace = document.querySelector("#faceSpace");
 let imageToFilter = filteredImage;
 
-var dummyPdf = "http://localhost:8090"
+var smileImage = "http://localhost:8090"
 
-const url = dummyPdf    
+var blankImage = "http://localhost:8100"
+
+const url = smileImage 
 const options = {
     method: "GET"
 }
 
 
-async function load_pic() {
+var canvasWidth = 0;
+var canvasHeight = 0;
+
+async function load_pic_smile(url, image) {
     
-  const url = dummyPdf;
+  // const url = smileImage;
 
   const options = {
       method: "GET"
@@ -27,10 +33,8 @@ async function load_pic() {
   if (response.status === 200) {
       const imageBlob = await response.blob()
       const imageObjectURL = URL.createObjectURL(imageBlob);
-      filteredImage.src = imageObjectURL
-      imageToFilter.addEventListener("load", () => {
-        // filteredImage.src = filterImage(imageToFilter, filter, 10, 10, 10, 10);
-      });
+      // console.log(image);
+      image.src = imageObjectURL
   }
   else {
       console.log("HTTP-Error: " + response.status)
@@ -38,7 +42,37 @@ async function load_pic() {
 }
 
 
-load_pic();
+async function load_pic_blank(url, image) {
+    
+  // const url = smileImage;
+
+  const options = {
+      method: "GET"
+  }
+
+  let response = await fetch(url, options)
+
+  if (response.status === 200) {
+      const imageBlob = await response.blob()
+      const imageObjectURL = URL.createObjectURL(imageBlob);
+      // console.log(image);
+      image.src = imageObjectURL
+      
+      image.addEventListener("load", (e) => {
+        canvasWidth = image.width;
+        canvasHeight = image.height;
+      })
+      
+  }
+  else {
+      console.log("HTTP-Error: " + response.status)
+  }
+}
+
+
+
+load_pic_blank(blankImage, faceSpace);
+load_pic_smile(smileImage, filteredImage);
 
 // initializing the filter value
 // const filterElement = document.getElementsByName("filterRadio");
@@ -58,8 +92,44 @@ let filter;
 //   };
 // });
 
-filteredImage.setAttribute('draggable', false);
 
+var bezierPoints = [];
+
+
+var tValues = [];
+var n = 10;
+for(i = 0 ; i < n ; i++){
+  tValues.push(i/n);
+}
+function randomPoint() {
+  var x = Math.round(Math.random()*canvasWidth);
+  var y = Math.round(Math.random()*canvasHeight);
+  return [x,y];
+}
+
+
+var currentTIndex = 0;
+var active = false;
+
+console.log(tValues);
+
+
+
+filteredImage.addEventListener("mousedown", (e) => {
+  active = true;
+  bezierPoints.pop();
+  bezierPoints.pop();
+  bezierPoints.pop();
+  bezierPoints.push(randomPoint());
+  bezierPoints.push(randomPoint());
+  bezierPoints.push(randomPoint());
+
+  console.log(bezierPoints);
+})
+
+
+filteredImage.setAttribute('draggable', false);
+faceSpace.setAttribute('draggable', false);
 
 var x0 = null;
 var y0 = null;

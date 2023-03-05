@@ -18,8 +18,6 @@ for(i = 0 ; i < n ; i++){
 var canvasWidth = canvas.width;
 var canvasHeight = canvas.height;
 
-console.log(canvasWidth, canvasHeight);
-
 var context = canvas.getContext("2d");
 
 var currentTIndex = 0;
@@ -39,9 +37,6 @@ function randomPoint() {
 
 filteredImage.addEventListener("mousedown", (e) => {
     active = true;
-
-
-    
     // var top = Math.round(filteredImage.getBoundingClientRect().top);
     // var left = Math.round(filteredImage.getBoundingClientRect().left);
     // x0 = e.pageX - left - window.pageXOffset;
