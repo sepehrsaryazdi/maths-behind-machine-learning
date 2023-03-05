@@ -76,6 +76,15 @@ async function load_pic_blank(url, image) {
 load_pic_blank(blankImage, faceSpace);
 load_pic_smile(smileImage, filteredImage);
 
+
+const resetButton = document.querySelector("#resetButton");
+resetButton.addEventListener("click", () => {
+load_pic_blank(blankImage, faceSpace);
+load_pic_smile(smileImage, filteredImage);
+bezierPoints = [];
+currentTIndex = 0;
+})
+
 // initializing the filter value
 // const filterElement = document.getElementsByName("filterRadio");
 let filter;
