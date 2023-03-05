@@ -80,11 +80,7 @@ filteredImage.addEventListener("mousedown", (e) => {
         canvasData.data[currentPointY*canvasWidth + currentPointX + 2] = 30;
         canvasData.data[currentPointY*canvasWidth + currentPointX + 3] = 255;
 
-        context.putImageData(canvasData, 0, 0);
-
-
-
-        
+        context.putImageData(canvasData, 0, 0);  
     }
   })
   

@@ -4,6 +4,10 @@ body {
     padding: 0;
 }
 
+iframe {
+    overflow: hidden;
+}
+
 #text-layer { 
     position: absolute;
      left: 0;

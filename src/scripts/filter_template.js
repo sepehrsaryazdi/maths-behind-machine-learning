@@ -61,6 +61,8 @@ async function load_pic_blank(url, image) {
       image.addEventListener("load", (e) => {
         canvasWidth = image.width;
         canvasHeight = image.height;
+        
+
       })
       
   }
@@ -97,7 +99,7 @@ var bezierPoints = [];
 
 
 var tValues = [];
-var n = 10;
+var n = 500;
 for(i = 0 ; i < n ; i++){
   tValues.push(i/n);
 }
@@ -117,14 +119,27 @@ console.log(tValues);
 
 filteredImage.addEventListener("mousedown", (e) => {
   active = true;
-  bezierPoints.pop();
-  bezierPoints.pop();
-  bezierPoints.pop();
-  bezierPoints.push(randomPoint());
-  bezierPoints.push(randomPoint());
-  bezierPoints.push(randomPoint());
+  // currentTIndex = 0;
+  if(bezierPoints.length == 0){
+    bezierPoints.push(randomPoint());
+    bezierPoints.push(randomPoint());
+    bezierPoints.push(randomPoint());
+  }
 
-  console.log(bezierPoints);
+  var t = tValues[currentTIndex];
+
+  var currentPointX = Math.round((1-t)**2*bezierPoints[0][0] + 2*t*(1-t)*bezierPoints[1][0] + t**2*bezierPoints[2][0]);
+  var currentPointY = Math.round((1-t)**2*bezierPoints[0][1] + 2*t*(1-t)*bezierPoints[1][1] + t**2*bezierPoints[2][1]);
+
+
+  currentTIndex = 0;
+  bezierPoints = [[currentPointX, currentPointY], randomPoint(), randomPoint()];
+  
+  // bezierPoints.shift();
+  // bezierPoints.shift();
+  // bezierPoints.push(randomPoint());
+  // bezierPoints.push(randomPoint());
+
 })
 
 
@@ -160,6 +175,8 @@ filteredImage.addEventListener("mousemove", (e)=>{
     x1 = e.pageX - left - window.pageXOffset;
     y1 =  e.pageY - top - window.pageYOffset;
     filteredImage.src = filterImage(filteredImage, filter, x0, y0, x1,y1);
+    faceSpace.src = updateFaceSpace(faceSpace);
+    
   }
 })
 
@@ -199,6 +216,122 @@ filteredImage.addEventListener("mouseup", (e)=>{
 //     reader.readAsDataURL(field);
 //   });
 // }
+
+
+function updateFaceSpace(faceSpace) {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  const canvasWidth = faceSpace.width;
+  const canvasHeight = faceSpace.height;
+
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+
+  context.drawImage(faceSpace, 0, 0, canvasWidth, canvasHeight);
+
+  const sourceImageData = context.getImageData(0, 0, canvasWidth, canvasHeight);
+  const blankOutputImageData = context.createImageData(
+    canvasWidth,
+    canvasHeight
+  );
+
+  
+
+
+  var w = canvasWidth;
+  var h = canvasHeight;
+
+  for(x=0 ; x<w; x++){
+    for(y=0 ; y<h; y++){
+      // console.log(y*w+x);
+      var offSet = (y*w + x)*4;
+      blankOutputImageData.data[offSet] = sourceImageData.data[offSet];
+      blankOutputImageData.data[offSet+1] = sourceImageData.data[offSet+1];
+      blankOutputImageData.data[offSet+2] = sourceImageData.data[offSet+2];
+      blankOutputImageData.data[offSet+3] = sourceImageData.data[offSet+3];
+    }
+  }
+  
+  var epsilon = 3;
+  var uniqueDifferentials = [];
+
+    for(r = 0 ; r<= epsilon; r++){
+      for(theta = 0 ; theta< 2*Math.PI; theta+= 1/10){
+        x = Math.round(r*Math.cos(theta));
+        y = Math.round(r*Math.sin(theta));
+        if(uniqueDifferentials.length == 0){
+          uniqueDifferentials.push([x,y]);
+        }
+    
+        var exists = false;
+        for(i = 0 ; i < uniqueDifferentials.length ; i++){
+            var uniqueDifferential = uniqueDifferentials[i];
+            if (uniqueDifferential[0] == x & uniqueDifferential[1] == y) {
+              exists = true;
+            }
+        }
+    
+        if(!exists){
+          uniqueDifferentials.push([x,y]);
+        }
+
+      }
+    }
+
+  for(i = 0 ; i < 10 ; i ++) {
+
+
+
+    currentTIndex += 1;
+    if(currentTIndex == tValues.length){
+        currentTIndex = 0;
+
+        var P1 = bezierPoints[0];
+        var P2 = bezierPoints[1];
+        var P3 = bezierPoints[2];
+
+        var P4 = [2*P3[0] - P2[0], 2*P3[1] - P2[1]];
+        var P5 = randomPoint();
+
+        bezierPoints = [P3, P4, P5];
+
+    }
+
+
+    var t = tValues[currentTIndex];
+
+    var currentPointX = Math.round((1-t)**2*bezierPoints[0][0] + 2*t*(1-t)*bezierPoints[1][0] + t**2*bezierPoints[2][0]);
+    var currentPointY = Math.round((1-t)**2*bezierPoints[0][1] + 2*t*(1-t)*bezierPoints[1][1] + t**2*bezierPoints[2][1]);
+
+    
+    // for(i = 0 ; i<canvasData.length ; i ++ ){
+    //   canvasData[i] = 255;
+    // }
+
+    for(j = 0 ; j < uniqueDifferentials.length ; j ++ ){
+      var uniqueDifferential = uniqueDifferentials[j];
+      var dx = uniqueDifferential[0];
+      var dy = uniqueDifferential[1];
+      x = Math.max(Math.min(currentPointX + dx, w-1),0);
+      y = Math.max(Math.min(currentPointY + dy,h-1),0);
+
+      var offSet = (y*canvasWidth + x)*4;
+
+      blankOutputImageData.data[offSet] = 0;
+      blankOutputImageData.data[offSet+ 1] = 0;
+      blankOutputImageData.data[offSet + 2] = 0;
+      blankOutputImageData.data[offSet + 3] = 255;
+
+    }
+
+  }
+
+  context.putImageData(blankOutputImageData, 0, 0);  
+      
+
+  return canvas.toDataURL();
+}
+
 
 function filterImage(imageToFilter, filter, x0, y0, x1,y1) {
   const canvas = document.createElement("canvas");
