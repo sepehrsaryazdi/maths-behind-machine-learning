@@ -29,7 +29,7 @@ async function load_pic() {
       const imageObjectURL = URL.createObjectURL(imageBlob);
       filteredImage.src = imageObjectURL
       imageToFilter.addEventListener("load", () => {
-        filteredImage.src = filterImage(imageToFilter, filter, 10, 10, 10, 10);
+        // filteredImage.src = filterImage(imageToFilter, filter, 10, 10, 10, 10);
       });
   }
   else {
@@ -41,22 +41,22 @@ async function load_pic() {
 load_pic();
 
 // initializing the filter value
-const filterElement = document.getElementsByName("filterRadio");
+// const filterElement = document.getElementsByName("filterRadio");
 let filter;
-filterElement.forEach((f) => {
-  if (f.checked) filter = f.value;
-});
+// filterElement.forEach((f) => {
+//   if (f.checked) filter = f.value;
+// });
 
 
 
 
 // applying the selected filter
-filterElement.forEach((f) => {
-  f.onclick = () => {
-    filter = f.value;
-    filteredImage.src = filterImage(imageToFilter, filter,10,10,10,10);
-  };
-});
+// filterElement.forEach((f) => {
+//   f.onclick = () => {
+//     filter = f.value;
+//     filteredImage.src = filterImage(imageToFilter, filter,10,10,10,10);
+//   };
+// });
 
 filteredImage.setAttribute('draggable', false);
 
@@ -118,22 +118,21 @@ filteredImage.addEventListener("mouseup", (e)=>{
 //   return false;
 // });
 
-function fileToDataUri(field) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
+// function fileToDataUri(field) {
+//   return new Promise((resolve) => {
+//     const reader = new FileReader();
 
-    reader.addEventListener("load", () => {
-      resolve(reader.result);
-    });
+//     reader.addEventListener("load", () => {
+//       resolve(reader.result);
+//     });
 
-    reader.readAsDataURL(field);
-  });
-}
+//     reader.readAsDataURL(field);
+//   });
+// }
 
 function filterImage(imageToFilter, filter, x0, y0, x1,y1) {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
-
   const canvasWidth = imageToFilter.width;
   const canvasHeight = imageToFilter.height;
 
